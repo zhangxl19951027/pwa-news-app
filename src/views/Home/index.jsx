@@ -1,11 +1,21 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import BottomBar from '../../components/BottomBar';
 import { useNavigate } from 'react-router-dom';
-import { newsList } from '../../common/mock/newsList';
 import './index.less';
 
 const Home = () => {
   const navigate = useNavigate();
+  const [newsList, setNewsList] = useState([]);
+
+  useEffect(() => {
+    getNewsList()
+  }, []);
+
+  const getNewsList = async () => {
+    const res = await fetch('/mock/news.json');
+    const data = await res.json();
+    setNewsList(data);
+  };
 
   const toDetail = (id) => {
     navigate(`/news/${id}`);

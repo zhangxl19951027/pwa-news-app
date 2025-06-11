@@ -15,6 +15,8 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      strategies: 'generateSW', // 默认generateSW，生成sw.js；如果injectManifest，则可以使用自定义sw.js
+      includeAssets: ['vite.svg', 'icons/*', 'offline.html'], // 精确配置需要缓存的文件--非构建产物(仅匹配public路径下的文件)
       manifest: {
         name: 'PWA 新闻APP', // 全名
         short_name: 'PWA 新闻', // 简称
@@ -41,6 +43,58 @@ export default defineConfig({
             type: 'image/png',
             purpose: 'any maskable',
           },
+        ]
+      },
+      workbox: {
+        // 构建期缓存策略
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,jpeg}'], // 扫描构建产物，匹配需要缓存的文件
+        // 运行期缓存策略
+        runtimeCaching: [
+          // 缓存 HTML 页面
+          {
+            urlPattern: ({ request }) => request.destination === 'document',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'html-cache',
+              networkTimeoutSeconds: 3,
+              expiration: {
+                maxEntries: 50,
+              },
+            }
+          },
+          // 缓存 API 响应
+          {
+            urlPattern: /\/mock\/news.json/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'news-api-cache',
+              expiration: {
+                maxEntries: 50, // 最多缓存50条数据
+                maxAgeSeconds: 60 * 60 * 24 * 7, // 缓存有效期为7天
+             },
+            }
+          },
+          // 缓存图片资源
+          {
+            urlPattern: /\.(?:png|jpg|jpeg|svg|gif)$/,
+            handler: 'CacheFirst', // 优先缓存，适合图片
+            options: {
+              cacheName: 'image-cache',
+              expiration: {
+                maxEntries: 60,
+                maxAgeSeconds: 30 * 24 * 60 * 60, // 缓存有效期为30天
+              },
+            },
+          },
+        ],
+        // 配置离线回退页面
+        navigateFallback: '/offline.html',
+        // 哪些请求不走fallback
+        navigateFallbackDenylist: [
+          // 排除 API 请求
+          /^\/api\//,
+          // 排除资源文件
+          /\/[^\/]+\.[^\/]+$/,
         ]
       },
       devOptions: {
