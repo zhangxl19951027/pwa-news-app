@@ -14,6 +14,7 @@ const Home = () => {
   const getNewsList = async () => {
     const res = await fetch('/mock/news.json');
     const data = await res.json();
+    console.log('news fetch', data);
     setNewsList(data);
   };
 

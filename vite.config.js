@@ -88,11 +88,11 @@ export default defineConfig({
           },
         ],
         // 配置离线回退页面
-        navigateFallback: '/offline.html',
+        navigateFallback: '/index.html',
         // 哪些请求不走fallback
         navigateFallbackDenylist: [
           // 排除 API 请求
-          /^\/api\//,
+          /^\/mock\//,
           // 排除资源文件
           /\/[^\/]+\.[^\/]+$/,
         ]

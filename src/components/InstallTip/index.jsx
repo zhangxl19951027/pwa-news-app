@@ -30,11 +30,13 @@ const InstallTip = () => {
   };
 
   return (
-    <div className='install-tip'>
+    <>
       {
-        showInstallButton && <Button onClick={handleInstallClick} color='primary' fill='none' size='small'>📲 安装 App</Button>
+        showInstallButton ? <div className='install-tip'>
+          <Button onClick={handleInstallClick} color='primary' fill='none' size='small'>📲 安装 App</Button>
+        </div> : null
       }
-    </div>
+    </>
   )
 }
 

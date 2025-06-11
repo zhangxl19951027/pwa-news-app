@@ -81,14 +81,23 @@ define(['./workbox-9dc17825'], (function (workbox) { 'use strict';
     "url": "registerSW.js",
     "revision": "3ca0b8505b4bec776b69afdba2768812"
   }, {
-    "url": "/offline.html",
-    "revision": "0.if519dgs9co"
+    "url": "/index.html",
+    "revision": "0.f9mn03fo8h"
   }], {});
   workbox.cleanupOutdatedCaches();
-  workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("/offline.html"), {
+  workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("/index.html"), {
     allowlist: [/^\/$/],
-    denylist: [/^\/api\//, /\/[^/?]+\.[^/]+$/]
+    denylist: [/^\/mock\//, /\/[^\/]+\.[^\/]+$/]
   }));
+  workbox.registerRoute(({
+    request
+  }) => request.destination === "document", new workbox.NetworkFirst({
+    "cacheName": "html-cache",
+    "networkTimeoutSeconds": 3,
+    plugins: [new workbox.ExpirationPlugin({
+      maxEntries: 50
+    })]
+  }), 'GET');
   workbox.registerRoute(/\/mock\/news.json/, new workbox.NetworkFirst({
     "cacheName": "news-api-cache",
     plugins: [new workbox.ExpirationPlugin({
