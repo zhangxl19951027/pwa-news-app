@@ -5,7 +5,19 @@ self.addEventListener('notificationclick', function (event) {
   if (action === 'view' || !action) {
     // 处理 "查看详情" 按钮的点击 || 点击了通知面板
     console.log('用户点击了查看详情');
-    event.waitUntil(clients?.openWindow(notification.data.url)); // 打开链接
+    event.waitUntil(
+      self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (clientList) {
+        console.log('clientList', clientList);
+        if (clientList.length > 0) {
+          // 有页面在运行，通知页面跳转
+          clientList[0].postMessage({ type: 'NAVIGATE', url: notification.data.url });
+          return clientList[0].focus();
+        } else {
+          // 没有已打开的页面，新开窗口（兜底）
+          return self.clients.openWindow(notification.data.url);
+        }
+      })
+    );
     notification.close(); // 关闭通知
   } else if (action === 'close') {
     // 处理 "关闭" 按钮的点击

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BottomBar from '../../components/BottomBar';
 import avatar from '../../assets/avatar.jpeg';
@@ -9,6 +9,18 @@ import { Button } from 'antd-mobile';
 const Me = () => {
   const navigate = useNavigate();
   const recentNews = newsList.slice(0, 5);
+
+  useEffect(() => {
+    console.log('App mounted', navigator);
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        console.log('Received message from service worker:', event.data);
+        if (event.data && event.data.type === 'NAVIGATE') {
+          navigate(event.data.url);
+        }
+      });
+    }
+  }, [])
 
   const toDetail = (id) => {
     navigate(`/news/${id}`);
