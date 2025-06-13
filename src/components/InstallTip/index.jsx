@@ -7,6 +7,7 @@ const InstallTip = () => {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
 
   useEffect(() => {
+    // PWA已安装，不会触发 beforeinstallprompt 事件
     window.addEventListener('beforeinstallprompt', (e) => {
       console.log('beforeinstallprompt', e);
       e.preventDefault(); // 阻止自动弹窗

@@ -48,6 +48,7 @@ export default defineConfig({
       workbox: {
         // 构建期缓存策略
         globPatterns: ['**/*.{js,css,html,ico,png,svg,jpeg}'], // 扫描构建产物，匹配需要缓存的文件
+        importScripts: ['sw-event.js'], // 导入自定义事件的脚本文件
         // 运行期缓存策略
         runtimeCaching: [
           // 缓存 HTML 页面
@@ -99,6 +100,7 @@ export default defineConfig({
       },
       devOptions: {
         enabled: true,
+        type: 'module',
       }
     }),
     mkcert()

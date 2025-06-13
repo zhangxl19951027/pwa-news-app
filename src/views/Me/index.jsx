@@ -4,6 +4,7 @@ import BottomBar from '../../components/BottomBar';
 import avatar from '../../assets/avatar.jpeg';
 import { newsList } from '../../common/mock/newsList';
 import './index.less';
+import { Button } from 'antd-mobile';
 
 const Me = () => {
   const navigate = useNavigate();
@@ -11,6 +12,37 @@ const Me = () => {
 
   const toDetail = (id) => {
     navigate(`/news/${id}`);
+  };
+
+  const subscribeNotification = () => {
+    Notification.requestPermission().then(function (result) {
+      console.log("用户授权接收通知", result);
+      if (result === "granted") {
+        console.log("用户同意接收通知");
+        setTimeout(() => {
+          randomNotification();
+        }, 3000)
+      }
+    });
+    
+  };
+
+  const randomNotification = () => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.ready.then((registration) => {
+        registration.showNotification('今日热点推荐', {
+          body: '中国新能源汽车出口量跃居世界第一',
+          icon: '/icons/icon-192x192.png', // 通知图标
+          data: {
+            url: '/news/3', // 点击通知跳转的链接
+          },
+          actions: [
+            { action: 'view', title: '查看详情', icon: '/icons/icon-192x192.png' },
+            { action: 'close', title: '关闭', icon: '/icons/icon-192x192.png' },
+          ]
+        });
+      });
+    }
   };
 
   return (
@@ -22,6 +54,7 @@ const Me = () => {
           <div className='desc'>我是一个随便看看的用户...</div>
         </div>
       </div>
+      <Button onClick={subscribeNotification} size='mini' className='subscribe-btn'>订阅通知</Button>
       <div className='recent-news-box'>
         <div className='title'>最近浏览</div>
         <div className='news-list'>
