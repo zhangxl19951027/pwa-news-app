@@ -57,6 +57,34 @@ const Me = () => {
     }
   };
 
+  const backgroundPush = async () => {
+    if ('serviceWorker' in navigator) {
+      const registration = await navigator.serviceWorker.ready;
+      const publicVapidKey = 'BI5DkSF_y2i7ePRetT3LgV3RqUmr81ULV6TZUJ4-3-lBQXKEMdg3IU5-aNyoAS24GMdgS_cquGM2XE73b2yPI8k';
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(publicVapidKey),
+      })
+      const res = await fetch('https://pwa-push-server-production.up.railway.app/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(subscription),
+      });
+      console.log('订阅成功：', res);
+    }
+  };
+
+  const urlBase64ToUint8Array = (base64String) => {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+      .replace(/\-/g, '+')
+      .replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    return Uint8Array.from([...rawData].map(char => char.charCodeAt(0)));
+  }
+
   return (
     <div className='me-container'>
       <div className='me-info'>
@@ -67,6 +95,7 @@ const Me = () => {
         </div>
       </div>
       <Button onClick={subscribeNotification} size='mini' className='subscribe-btn'>订阅通知</Button>
+      <Button onClick={backgroundPush} size='mini' className='subscribe-btn'>后台推送</Button>
       <div className='recent-news-box'>
         <div className='title'>最近浏览</div>
         <div className='news-list'>

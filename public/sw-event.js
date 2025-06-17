@@ -25,3 +25,20 @@ self.addEventListener('notificationclick', function (event) {
     notification.close(); // 关闭通知
   }
 });
+
+self.addEventListener('push', event => {
+  console.log('收到推送', event);
+  if (event.data) {
+    const { title, body } = event.data.json();
+    console.log('推送数据', event.data.json());
+    event.waitUntil(
+      self.registration.showNotification(title, {
+        body,
+        icon: '/icons/icon-192x192.png',
+        data: {
+          url: '/news/3', // 点击通知跳转的链接
+        },
+      })
+    );
+  }
+});
