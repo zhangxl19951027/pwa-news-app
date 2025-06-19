@@ -78,11 +78,14 @@ const Me = () => {
 
     try {
       const registration = await navigator.serviceWorker.ready;
+      console.log('registration', registration, JSON.parse(JSON.stringify(registration)));
       const publicVapidKey = 'BI5DkSF_y2i7ePRetT3LgV3RqUmr81ULV6TZUJ4-3-lBQXKEMdg3IU5-aNyoAS24GMdgS_cquGM2XE73b2yPI8k';
+      console.log('publicVapidKey', urlBase64ToUint8Array(publicVapidKey));
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(publicVapidKey),
       })
+      console.log('subscription', subscription, JSON.parse(JSON.stringify(subscription)), JSON.stringify(subscription));
       const res = await fetch('https://pwa-push-server-production.up.railway.app/subscribe', {
         method: 'POST',
         headers: {
@@ -92,16 +95,18 @@ const Me = () => {
       });
       console.log('订阅成功：', JSON.parse(JSON.stringify(res)), JSON.stringify(res));
     } catch (error) {
-      console.error('Push 订阅失败:', JSON.parse(JSON.stringify(error)), JSON.stringify(error));
+      console.error('Push 订阅失败:', error, JSON.parse(JSON.stringify(error)), JSON.stringify(error));
     }
   };
 
   const urlBase64ToUint8Array = (base64String) => {
+    console.log('urlBase64ToUint8Array', base64String);
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
     const base64 = (base64String + padding)
       .replace(/\-/g, '+')
       .replace(/_/g, '/');
     const rawData = window.atob(base64);
+    console.log('urlBase64ToUint8Array res', Uint8Array.from([...rawData].map(char => char.charCodeAt(0))));
     return Uint8Array.from([...rawData].map(char => char.charCodeAt(0)));
   }
 
