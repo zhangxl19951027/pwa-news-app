@@ -5,6 +5,7 @@ import mkcert from 'vite-plugin-mkcert'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/',
   server: {
     https: true,
     host: '0.0.0.0',  // 允许外部设备访问
