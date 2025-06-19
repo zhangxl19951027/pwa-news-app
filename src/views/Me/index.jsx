@@ -111,7 +111,7 @@ const Me = () => {
   // }
 
   const urlBase64ToUint8Array = (base64String) => { 
-    console.log('urlBase64ToUint8Array', base64String);
+    console.log('urlBase64ToUint8Array222', base64String);
     const padding = '='.repeat((4 - base64String.length % 4) % 4); 
     const base64 = (base64String + padding) 
       .replace(/-/g, '+') 
@@ -123,7 +123,7 @@ const Me = () => {
     for (let i = 0; i < rawData.length; ++i) { 
       outputArray[i] = rawData.charCodeAt(i); 
     } 
-    console.log('urlBase64ToUint8Array res', outputArray)
+    console.log('urlBase64ToUint8Array res2', outputArray)
     return outputArray; 
   }; 
 
