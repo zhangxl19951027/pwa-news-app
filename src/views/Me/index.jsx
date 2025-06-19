@@ -81,6 +81,7 @@ const Me = () => {
       console.log('registration', registration, JSON.parse(JSON.stringify(registration)));
       const publicVapidKey = 'BI5DkSF_y2i7ePRetT3LgV3RqUmr81ULV6TZUJ4-3-lBQXKEMdg3IU5-aNyoAS24GMdgS_cquGM2XE73b2yPI8k';
       console.log('publicVapidKey', urlBase64ToUint8Array(publicVapidKey));
+      console.log('publicVapidKey类型:', urlBase64ToUint8Array(publicVapidKey).constructor.name);
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(publicVapidKey),
