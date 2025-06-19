@@ -58,6 +58,7 @@ const Me = () => {
   };
 
   const backgroundPush = async () => {
+    console.log('backgroundPush', 'serviceWorker' in navigator);
     if (!('serviceWorker' in navigator)) {
       console.error('Service Worker 不可用');
       return;
@@ -65,14 +66,15 @@ const Me = () => {
 
     // 检查 Push 权限
     const permissionState = await navigator.permissions.query({ name: 'push' });
+    console.log('permissionState', JSON.parse(JSON.stringify(permissionState)), permissionState.state);
     if (permissionState.state !== 'granted') {
       const result = await Notification.requestPermission();
+      console.log('requestPermission', result);
       if (result !== 'granted') {
         console.error('用户未授权 Push 权限');
         return;
       }
     }
-    console.log('permissionState', permissionState);
 
     try {
       const registration = await navigator.serviceWorker.ready;
@@ -88,9 +90,9 @@ const Me = () => {
         },
         body: JSON.stringify(subscription),
       });
-      console.log('订阅成功：', res);
+      console.log('订阅成功：', JSON.parse(JSON.stringify(res)), JSON.stringify(res));
     } catch (error) {
-      console.error('Push 订阅失败:', error);
+      console.error('Push 订阅失败:', JSON.parse(JSON.stringify(error)), JSON.stringify(error));
     }
   };
 
