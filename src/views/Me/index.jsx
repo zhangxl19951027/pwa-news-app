@@ -5,6 +5,7 @@ import avatar from '../../assets/avatar.jpeg';
 import { newsList } from '../../common/mock/newsList';
 import './index.less';
 import { Button } from 'antd-mobile';
+import { requestPermission } from '../../common/utils/firebase-config';
 
 const Me = () => {
   const navigate = useNavigate();
@@ -16,9 +17,23 @@ const Me = () => {
       const messageHandler = (event) => {
         console.log('Received message from service worker:', event.data);
         if (event.data && event.data.type === 'NAVIGATE') {
-          setTimeout(() => {
-            navigate(event.data.url);
-          }, 0);
+          if (event.data.url.includes('://')) {
+            location.href = event.data.url; // 跳转到外部链接
+          } else {
+            setTimeout(() => {
+              navigate(event.data.url);
+            }, 0);
+          }
+        } else if (event.data.isFirebaseMessaging) {
+          navigator.serviceWorker.ready.then((registration) => {
+            registration.showNotification(event.data.notification.title, {
+              body: event.data.notification.body,
+              icon: '/icons/icon-192x192.png',
+              data: {
+                url: event.data.notification.click_action, // 点击通知跳转的链接
+              },
+            })
+          });
         }
       };
       navigator.serviceWorker.addEventListener('message', messageHandler);
@@ -134,6 +149,23 @@ const Me = () => {
     return outputArray; 
   }; 
 
+  const fcmPush = async () => {
+    const token = await requestPermission();
+    console.log('fcmPush token', token);
+    const res = await fetch('http://localhost:4000/fcm_push', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        token,
+        title: '今日热点推荐2',
+        body: '中国新能源汽车出口量跃居世界第一2',
+      }),
+    });
+    console.log('fcmPush res', res);
+  };
+
 
   return (
     <div className='me-container'>
@@ -146,6 +178,7 @@ const Me = () => {
       </div>
       <Button onClick={subscribeNotification} size='mini' className='subscribe-btn'>订阅通知</Button>
       <Button onClick={backgroundPush} size='mini' className='subscribe-btn'>后台推送</Button>
+      <Button onClick={fcmPush} size='mini' className='subscribe-btn'>FCM推送</Button>
       <div className='recent-news-box'>
         <div className='title'>最近浏览</div>
         <div className='news-list'>
