@@ -13,12 +13,18 @@ const Me = () => {
   useEffect(() => {
     console.log('App mounted', navigator);
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.addEventListener('message', (event) => {
+      const messageHandler = (event) => {
         console.log('Received message from service worker:', event.data);
         if (event.data && event.data.type === 'NAVIGATE') {
-          navigate(event.data.url);
+          setTimeout(() => {
+            navigate(event.data.url);
+          }, 0);
         }
-      });
+      };
+      navigator.serviceWorker.addEventListener('message', messageHandler);
+      return () => {
+        navigator.serviceWorker.removeEventListener('message', messageHandler);
+      };
     }
   }, [])
 
