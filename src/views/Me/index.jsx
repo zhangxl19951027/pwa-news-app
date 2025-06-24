@@ -151,8 +151,8 @@ const Me = () => {
 
   const fcmPush = async () => {
     const token = await requestPermission();
-    console.log('fcmPush token', token);
-    const res = await fetch('http://localhost:4000/fcm_push', {
+    console.log('fcmPush token11111', token);
+    const res = await fetch('https://pwa-push-server-production.up.railway.app/fcm_push', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
