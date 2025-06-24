@@ -20,7 +20,7 @@ messaging.onBackgroundMessage(function(payload) {
     body: payload.notification.body,
     icon: '/icons/icon-192x192.png',
     data: {
-      url: payload.notification.click_action, // 点击通知跳转的链接
+      url: payload.fcmOptions?.link || payload.notification?.click_action || '/', // 点击通知跳转的链接
     },
   };
 

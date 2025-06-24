@@ -11,37 +11,37 @@ const Me = () => {
   const navigate = useNavigate();
   const recentNews = newsList.slice(0, 5);
 
-  useEffect(() => {
-    console.log('App mounted', navigator);
-    if ('serviceWorker' in navigator) {
-      const messageHandler = (event) => {
-        console.log('Received message from service worker:', event.data);
-        if (event.data && event.data.type === 'NAVIGATE') {
-          if (event.data.url.includes('://')) {
-            location.href = event.data.url; // 跳转到外部链接
-          } else {
-            setTimeout(() => {
-              navigate(event.data.url);
-            }, 0);
-          }
-        } else if (event.data.isFirebaseMessaging) {
-          navigator.serviceWorker.ready.then((registration) => {
-            registration.showNotification(event.data.notification.title, {
-              body: event.data.notification.body,
-              icon: '/icons/icon-192x192.png',
-              data: {
-                url: event.data.notification.click_action, // 点击通知跳转的链接
-              },
-            })
-          });
-        }
-      };
-      navigator.serviceWorker.addEventListener('message', messageHandler);
-      return () => {
-        navigator.serviceWorker.removeEventListener('message', messageHandler);
-      };
-    }
-  }, [])
+  // useEffect(() => {
+  //   console.log('App mounted', navigator);
+  //   if ('serviceWorker' in navigator) {
+  //     const messageHandler = (event) => {
+  //       console.log('Received message from service worker:', event.data);
+  //       if (event.data && event.data.type === 'NAVIGATE') {
+  //         if (event.data.url.includes('://')) {
+  //           location.href = event.data.url; // 跳转到外部链接
+  //         } else {
+  //           setTimeout(() => {
+  //             navigate(event.data.url);
+  //           }, 0);
+  //         }
+  //       } else if (event.data.isFirebaseMessaging) {
+  //         navigator.serviceWorker.ready.then((registration) => {
+  //           registration.showNotification(event.data.notification.title, {
+  //             body: event.data.notification.body,
+  //             icon: '/icons/icon-192x192.png',
+  //             data: {
+  //               url: event.data.notification.click_action, // 点击通知跳转的链接
+  //             },
+  //           })
+  //         });
+  //       }
+  //     };
+  //     navigator.serviceWorker.addEventListener('message', messageHandler);
+  //     return () => {
+  //       navigator.serviceWorker.removeEventListener('message', messageHandler);
+  //     };
+  //   }
+  // }, [])
 
   const toDetail = (id) => {
     navigate(`/news/${id}`);
