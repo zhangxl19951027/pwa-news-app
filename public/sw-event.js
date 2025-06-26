@@ -51,3 +51,31 @@ self.addEventListener('push', event => {
     );
   }
 });
+
+
+self.addEventListener('sync', (event) => {
+  console.log('sync event', event);
+  if (event.tag === 'sync-collect') {
+    event.waitUntil(
+      self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (clientList) {
+        console.log('clientList', clientList);
+        let focusedClient = null;
+
+        for (let client of clientList) {
+          if (client.visibilityState === 'visible') {
+            focusedClient = client;
+            break;
+          }
+        }
+
+        if (focusedClient) {
+          focusedClient.postMessage({ type: 'REQUEST' });
+        } else if (clientList.length > 0) {
+          clientList[0].postMessage({ type: 'REQUEST' });
+        } else {
+          console.log('没有打开的页面');
+        }
+      })
+    );
+  }
+});

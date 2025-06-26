@@ -39,4 +39,27 @@
       color: #666;
     }
   }
+  .op-box {
+    width: 100%;
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    height: 50px;
+    background-color: rgb(236, 236, 236);
+    align-items: center;
+    .op-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 35px;
+      &:not(:last-child) {
+        border-right: 1px solid #ccc;
+      }
+      .antd-mobile-icon {
+        font-size: 20px;
+      }
+    }
+  }
 }

@@ -6,6 +6,7 @@ import VConsole from 'vconsole';
 import { messaging } from './common/utils/firebase-config';
 import { useEffect } from 'react';
 import { onMessage } from 'firebase/messaging';
+import { openDB } from 'idb';
 
 new VConsole(); // 初始化
 
@@ -43,6 +44,8 @@ function App() {
               location.href = event.data.url
             }, 0);
           }
+        } else if (event.data?.type == 'REQUEST') {
+          syncCollectToServer();
         }
         // else if (event.data.isFirebaseMessaging) {
         //   navigator.serviceWorker.ready.then((registration) => {
@@ -67,6 +70,30 @@ function App() {
       if (typeof unsubscribe === 'function') unsubscribe();
     };
   }, []);
+
+  const syncCollectToServer = async () => {
+    const db = await openDB('pwa-news-db', 1);
+    const allCollect = await db.getAll('collect');
+    console.log('allCollect', allCollect);
+
+    for (const collect of allCollect) {
+      try {
+        const res = await fetch('http://localhost:4000/collect', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: collect.id }),
+        });
+
+        if (res.ok) {
+          await db.delete('collect', collect.id); // 成功后清除缓存
+          console.log(`✅ 同步成功: ${collect.id}`);
+        }
+      } catch (err) {
+        console.error(`❌ 同步失败: ${collect.id}`, err);
+        // 下次继续尝试
+      }
+    }
+  }
 
   return (
     <>
