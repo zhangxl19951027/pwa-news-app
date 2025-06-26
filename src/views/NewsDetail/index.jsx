@@ -30,9 +30,9 @@ const NewsDetail = () => {
       console.log('网络是否节流模式:', connection.saveData); // true 表示用户开启了流量节省
     }
 
-    if (navigator.onLine && connection.effectiveType === '4g') {
+    if (navigator.onLine) {
       // 网络好，直接请求服务端
-      const res = await fetch('http://localhost:4000/collect', {
+      const res = await fetch('https://pwa-push-server-production.up.railway.app/collect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id }),
