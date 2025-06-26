@@ -78,7 +78,7 @@ function App() {
 
     for (const collect of allCollect) {
       try {
-        const res = await fetch('http://localhost:4000/collect', {
+        const res = await fetch('https://pwa-push-server-production.up.railway.app/collect', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: collect.id }),
