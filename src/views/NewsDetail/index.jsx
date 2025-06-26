@@ -56,11 +56,55 @@ const NewsDetail = () => {
 
       // 注册后台同步任务
       const registration = await navigator.serviceWorker.ready;
-      try {
-        await registration.sync.register('sync-collect');
-        console.log('👍 收藏已保存，将在联网后自动同步');
-      } catch (e) {
-        console.error('后台同步注册失败', e);
+      console.log('注册后台同步任务', registration);
+      if ('sync' in registration) {
+        try {
+          await registration.sync.register('sync-collect');
+          console.log('👍 收藏已保存，将在联网后自动同步');
+        } catch (e) {
+          console.error('后台同步注册失败', e);
+        }
+      } else {
+        console.warn('当前浏览器不支持 Background Sync，考虑降级处理');
+        const handler = async () => {
+          console.log('网络已恢复，开始执行同步');
+          const db = await openDB('pwa-news-db', 1);
+          const allCollect = await db.getAll('collect');
+          console.log('allCollect', allCollect);
+
+          for (const collect of allCollect) {
+            try {
+              const res = await fetch('https://pwa-push-server-production.up.railway.app/collect', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: collect.id }),
+              });
+
+              if (res.ok) {
+                await db.delete('collect', collect.id); // 成功后清除缓存
+                console.log(`✅ 同步成功: ${collect.id}`);
+              }
+            } catch (err) {
+              console.error(`❌ 同步失败: ${collect.id}`, err);
+              // 下次继续尝试
+            }
+          }
+        }
+        window.addEventListener('online', () => {
+          handler();
+        });
+        // 页面从后台返回时
+        document.addEventListener('visibilitychange', () => {
+          console.log('document.visibilityState', document.visibilityState);
+          if (document.visibilityState === 'visible') {
+            if (navigator.onLine) {
+              console.log('🚀 网络正常，准备同步');
+              handler();
+            } else {
+              console.log('📴 当前离线，等待网络恢复');
+            }
+          }
+        });
       }
     }
   };
