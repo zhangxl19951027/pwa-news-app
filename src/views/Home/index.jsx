@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import BottomBar from '../../components/BottomBar';
 import { useNavigate } from 'react-router-dom';
+import { Button } from 'antd-mobile';
+import { openDB } from 'idb';
 import './index.less';
 
 const Home = () => {
@@ -22,9 +24,29 @@ const Home = () => {
     navigate(`/news/${id}`);
   };
 
+  const refresh = async () => {
+    if (navigator.onLine) {
+      getNewsList();
+    } else {
+      try {
+        const db = await openDB('pwa-news-db', 1);
+        const newsRecord = await db.get('newsList', 'latest');
+        if (newsRecord) {
+          console.log('cached news_list', newsRecord);
+          setNewsList(newsRecord.data);
+        } else {
+          console.log('no cached news_list');
+        }
+      } catch (error) {
+        console.error('❌ 读取 IndexedDB 失败:', error);
+      }
+    }
+  };
+
   return (
     <div className='home-container'>
       <div className='page-title'>新闻推荐</div>
+      <Button onClick={refresh} size='mini' className='refresh-btn'>刷新数据</Button>
       <div className='news-list'>
         {
           newsList.map((item) => (

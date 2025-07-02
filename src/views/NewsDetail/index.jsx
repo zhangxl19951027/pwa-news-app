@@ -44,7 +44,7 @@ const NewsDetail = () => {
       }
     } else {
       // 网络慢，后台同步
-      // 存储到 IndexedDB，等会在 SW 中读取（也可用 localforage）
+      // 存储到 IndexedDB，等会在 SW 中读取（也可用 localstorage）
       const db = await openDB('pwa-news-db', 1, {
         upgrade(db) {
           if (!db.objectStoreNames.contains('collect')) {

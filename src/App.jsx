@@ -32,8 +32,16 @@ function App() {
       });
     });
 
+    // 可选：如果 firebase 新版本支持 unsubscribe，建议返回清理函数
+    return () => {
+      if (typeof unsubscribe === 'function') unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
     console.log('App mounted', navigator);
     if ('serviceWorker' in navigator) {
+      // 监听postMessage事件
       const messageHandler = (event) => {
         console.log('Received message from service worker:', event.data);
         if (event.data && event.data.type === 'NAVIGATE') {
@@ -46,6 +54,8 @@ function App() {
           }
         } else if (event.data?.type == 'REQUEST') {
           syncCollectToServer();
+        } else if (event.data?.type == 'CACHE_NEWS_LIST') {
+          cacheLatestNewsList();
         }
         // else if (event.data.isFirebaseMessaging) {
         //   navigator.serviceWorker.ready.then((registration) => {
@@ -64,12 +74,23 @@ function App() {
         navigator.serviceWorker.removeEventListener('message', messageHandler);
       };
     }
-
-    // 可选：如果 firebase 新版本支持 unsubscribe，建议返回清理函数
-    return () => {
-      if (typeof unsubscribe === 'function') unsubscribe();
-    };
   }, []);
+
+  useEffect(() => {
+    async function requestPersistPermission() {
+      console.log('请求持久化权限', navigator.storage);
+      if (navigator.storage && navigator.storage.persist) {
+        const persisted = await navigator.storage.persisted();
+        console.log(`持久化权限已获取: ${persisted}`);
+        if (!persisted) {
+          const success = await navigator.storage.persist();
+          console.log(`持久化权限获取成功: ${success}`);
+        }
+      }
+    }
+  
+    requestPersistPermission();
+  }, [])
 
   const syncCollectToServer = async () => {
     const db = await openDB('pwa-news-db', 1);
@@ -94,6 +115,56 @@ function App() {
       }
     }
   }
+
+  const cacheLatestNewsList = async () => {
+    try {
+      const response = await fetch('https://pwa-push-server-production.up.railway.app/news_list');
+      const res = await response.json();
+  
+      // 打开 IndexedDB 并保存新闻
+      const db = await openDB('pwa-news-db', 1, {
+        upgrade(db) {
+          if (!db.objectStoreNames.contains('newsList')) {
+            db.createObjectStore('newsList', { keyPath: 'id' });
+          }
+        },
+      });
+  
+      await db.put('newsList', { id: 'latest', data: res.list });
+      console.log('✅ 最新新闻已更新到 IndexedDB');
+      res.list.forEach((item) => {
+        item.imgs?.length && cacheNewsImages(item.imgs);
+      })
+    } catch (error) {
+      console.error('❌ 同步失败:', error);
+    }
+  }
+
+  const cacheNewsImages = async (imgs) => {
+    const cache = await caches.open('news-image-cache');
+  
+    imgs.forEach(async (imageUrl) => {
+      const matched = await isImageCached(imageUrl);
+      if (imageUrl && !matched) {
+        try {
+          const response = await fetch(imageUrl);
+          if (response.ok) {
+            await cache.put(imageUrl, response.clone());
+            console.log(`✅ 图片已缓存: ${imageUrl}`);
+          }
+        } catch (err) {
+          console.error(`❌ 缓存失败: ${imageUrl}`, err);
+        }
+      }
+    });
+  };
+  
+  // 简单判断是否已缓存
+  const isImageCached = async (url) => {
+    const cache = await caches.open('news-image-cache');
+    const match = await cache.match(url);
+    return !!match;
+  };
 
   return (
     <>

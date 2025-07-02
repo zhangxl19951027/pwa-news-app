@@ -166,6 +166,31 @@ const Me = () => {
     console.log('fcmPush res', res);
   };
 
+  const backgroundPeriodSync = async () => {
+    try {
+      const registration = await navigator.serviceWorker.ready;
+
+      if ('periodicSync' in registration) {
+        // 检查是否已注册，避免重复注册
+        const existingTags = await registration.periodicSync.getTags();
+        if (!existingTags.includes('sync-latest-news')) {
+          await registration.periodicSync.register('sync-latest-news', {
+            minInterval: 30 * 60 * 1000, // 同步频率
+          });
+          console.log('🔁 周期性同步注册成功');
+        } else {
+          console.log('🔁 周期性同步已存在');
+          await registration.periodicSync.unregister('sync-latest-news');
+          console.log('🔁 周期性同步取消成功');
+        }
+      } else {
+        console.warn('当前浏览器不支持 periodic background sync');
+      }
+    } catch (error) {
+      console.error('注册失败:', error);
+    }
+  };
+
 
   return (
     <div className='me-container'>
@@ -179,6 +204,7 @@ const Me = () => {
       <Button onClick={subscribeNotification} size='mini' className='subscribe-btn'>订阅通知</Button>
       <Button onClick={backgroundPush} size='mini' className='subscribe-btn'>后台推送</Button>
       <Button onClick={fcmPush} size='mini' className='subscribe-btn'>FCM推送</Button>
+      <Button onClick={backgroundPeriodSync} size='mini' className='subscribe-btn'>后台周期性同步</Button>
       <div className='recent-news-box'>
         <div className='title'>最近浏览</div>
         <div className='news-list'>
